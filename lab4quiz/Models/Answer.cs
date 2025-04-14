@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace lab4quiz.Models
 {
-    internal class Answer
+    public class Answer
     {
+        public string Content { get; set; }
+        public bool IsCorrect { get; set; }
+        public bool IsSelected { get; set; }
+
     }
 }
