@@ -46,7 +46,7 @@ namespace lab4quiz.ViewModel
                 Text = NewQuestionText,
                 Answers = new ObservableCollection<Answer>(NewAnswers.Select(a => new Answer
                 {
-                    Title = a.Title,
+                    Text = a.Text,
                     IsCorrect = a.IsCorrect
                 }))
             });
