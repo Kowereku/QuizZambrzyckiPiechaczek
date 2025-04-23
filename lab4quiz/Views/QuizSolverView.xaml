@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="lab4quiz.Views.QuizSolverView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:lab4quiz.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="10">
+        <StackPanel>
+            <TextBlock Text="{Binding TimerDisplay}" FontSize="16" HorizontalAlignment="Right" Margin="0,0,0,10"/>
+            <ItemsControl ItemsSource="{Binding Questions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="{Binding Text}" FontWeight="Bold"/>
+                            <ItemsControl ItemsSource="{Binding Answers}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <RadioButton Content="{Binding Text}" GroupName="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.QuestionId}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Content="Rozpocznij" Command="{Binding StartQuizCommand}" Margin="0,10,0,0"/>
+            <Button Content="Zakończ" Command="{Binding EndQuizCommand}" Margin="0,5,0,0"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
