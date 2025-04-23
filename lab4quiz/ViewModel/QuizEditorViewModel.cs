@@ -14,10 +14,16 @@ namespace lab4quiz.ViewModel
     {
         public string QuizTitle { get; set; }
         public string NewQuestionText { get; set; }
-        public ObservableCollection<Answer> NewAnswers { get; set; } = new()
-{
-new Answer(), new Answer(), new Answer(), new Answer()
-};
+        private ObservableCollection<Answer> _newAnswers = new() { new Answer(), new Answer(), new Answer(), new Answer() };
+        public ObservableCollection<Answer> NewAnswers
+        {
+            get => _newAnswers;
+            set
+            {
+                _newAnswers = value;
+                OnPropertyChanged(nameof(NewAnswers));
+            }
+        }
         public ObservableCollection<Question> Questions { get; set; } = new();
         public Question SelectedQuestion { get; set; }
 
@@ -81,6 +87,8 @@ new Answer(), new Answer(), new Answer(), new Answer()
                 OnPropertyChanged(nameof(QuizTitle));
                 OnPropertyChanged(nameof(Questions));
             }
+
+            isEditing = false;
         }
 
         private void RemoveQuestion()
