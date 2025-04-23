@@ -6,11 +6,18 @@
         xmlns:local="clr-namespace:lab4quiz" xmlns:vm="clr-namespace:lab4quiz.ViewModel"
         mc:Ignorable="d"
         Title="Quiz" Height="500" Width="900">
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
-        <TextBlock Text="Wybierz tryb:" FontSize="18" Margin="0,0,0,20"/>
-        <Button Content="Edytor Quizu" Width="200" Height="40" Margin="0,0,0,10"
-                Command="{Binding OpenGeneratorViewCommand}"/>
-        <Button Content="Rozwiązywanie Quizu" Width="200" Height="40"
-                Command="{Binding OpenSolverViewCommand}"/>
-    </StackPanel>
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <DockPanel>
+        <!-- Menu -->
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="LightGray" Margin="10">
+            <Button Content="Generator quizu" Command="{Binding ShowEditorViewCommand}" Margin="0,0,10,0"/>
+            <Button Content="Rozwiąż quiz" Command="{Binding ShowSolverViewCommand}"/>
+        </StackPanel>
+
+        <!-- Główny widok -->
+        <ContentControl Content="{Binding CurrentViewModel}"/>
+    </DockPanel>
 </Window>

@@ -1,6 +1,5 @@
-﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using lab4quiz.Views;
+﻿using lab4quiz.Views;
+using lab4quiz.ViewModel.Base;
 using Microsoft.VisualStudio.PlatformUI;
 using System;
 using System.Collections.Generic;
@@ -14,25 +13,29 @@ namespace lab4quiz.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        public ICommand OpenGeneratorViewCommand { get; }
-        public ICommand OpenSolverViewCommand { get; }
+        private ViewModelBase _currentViewModel;
+        public ViewModelBase CurrentViewModel
+        {
+            get => _currentViewModel;
+            set
+            {
+                _currentViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand ShowEditorViewCommand { get; }
+        public ICommand ShowSolverViewCommand { get; }
+
+        private readonly QuizEditorViewModel _generatorViewModel = new();
+        private readonly QuizSolverViewModel _solverViewModel = new();
 
         public MainViewModel()
         {
-            OpenGeneratorViewCommand = new RelayCommand(OpenGenerator);
-            OpenSolverViewCommand = new RelayCommand(OpenSolver);
-        }
+            ShowEditorViewCommand = new RelayCommand(() => CurrentViewModel = _generatorViewModel);
+            ShowSolverViewCommand = new RelayCommand(() => CurrentViewModel = _solverViewModel);
 
-        private void OpenGenerator()
-        {
-            var view = new QuizEditorView { DataContext = new QuizEditorViewModel() };
-            new Window { Content = view, Title = "Edytor Quizu", Width = 500, Height = 600 }.Show();
-        }
-
-        private void OpenSolver()
-        {
-            var view = new QuizSolverView { DataContext = new QuizSolverViewModel() };
-            new Window { Content = view, Title = "Rozwiązywanie Quizu", Width = 500, Height = 600 }.Show();
+            CurrentViewModel = _generatorViewModel;
         }
     }
 }
