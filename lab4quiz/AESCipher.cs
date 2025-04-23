@@ -5,38 +5,39 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace lab4quiz
 {
     public class AESCipher
     {
-        private static readonly string EncryptionKey = "kochamdotNET2115";
+        private static readonly byte[] Key = Encoding.UTF8.GetBytes("kochamdotNET2115");
+        private static readonly byte[] IV = Encoding.UTF8.GetBytes("2137211513376902");
 
-        private static byte[] EncryptStringToBytes_Aes(string plainText, string key)
+        public static void EncryptToFile<T>(T obj, string path)
         {
-            using Aes aesAlg = Aes.Create();
-            aesAlg.Key = Encoding.UTF8.GetBytes(key);
-            aesAlg.IV = new byte[16];
+            var json = JsonSerializer.Serialize(obj);
+            using var aes = Aes.Create();
+            aes.Key = Key;
+            aes.IV = IV;
 
-            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-            using var msEncrypt = new MemoryStream();
-            using var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
-            using (var swEncrypt = new StreamWriter(csEncrypt))
-                swEncrypt.Write(plainText);
-            return msEncrypt.ToArray();
+            using var fs = new FileStream(path, FileMode.Create);
+            using var cs = new CryptoStream(fs, aes.CreateEncryptor(), CryptoStreamMode.Write);
+            using var sw = new StreamWriter(cs);
+            sw.Write(json);
         }
 
-        private static string DecryptStringFromBytes_Aes(byte[] cipherText, string key)
+        public static T DecryptFromFile<T>(string path)
         {
-            using Aes aesAlg = Aes.Create();
-            aesAlg.Key = Encoding.UTF8.GetBytes(key);
-            aesAlg.IV = new byte[16];
+            using var aes = Aes.Create();
+            aes.Key = Key;
+            aes.IV = IV;
 
-            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-            using var msDecrypt = new MemoryStream(cipherText);
-            using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-            using var srDecrypt = new StreamReader(csDecrypt);
-            return srDecrypt.ReadToEnd();
+            using var fs = new FileStream(path, FileMode.Open);
+            using var cs = new CryptoStream(fs, aes.CreateDecryptor(), CryptoStreamMode.Read);
+            using var sr = new StreamReader(cs);
+            var json = sr.ReadToEnd();
+            return JsonSerializer.Deserialize<T>(json);
         }
     }
 }

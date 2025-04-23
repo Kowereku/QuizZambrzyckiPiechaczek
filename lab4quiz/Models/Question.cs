@@ -9,7 +9,7 @@ namespace lab4quiz.Models
 {
     public class Question
     {
-        public string Content { get; set; }
+        public string Text { get; set; }
         public ObservableCollection<Answer> Answers = new ();
     }
 }
