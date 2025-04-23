@@ -1,13 +1,11 @@
 ﻿using lab4quiz.Models;
 using lab4quiz.ViewModel.Base;
-using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace lab4quiz.ViewModel
@@ -17,12 +15,13 @@ namespace lab4quiz.ViewModel
         public string QuizTitle { get; set; }
         public string NewQuestionText { get; set; }
         public ObservableCollection<Answer> NewAnswers { get; set; } = new()
-    {
-        new Answer(), new Answer(), new Answer(), new Answer()
-    };
-
+{
+new Answer(), new Answer(), new Answer(), new Answer()
+};
         public ObservableCollection<Question> Questions { get; set; } = new();
         public Question SelectedQuestion { get; set; }
+
+        private bool isEditing = false;
 
         public ICommand AddQuestionCommand { get; }
         public ICommand SaveQuizCommand { get; }
@@ -41,6 +40,8 @@ namespace lab4quiz.ViewModel
 
         private void AddQuestion()
         {
+            if (!ValidateInputs()) return;
+
             Questions.Add(new Question
             {
                 Text = NewQuestionText,
@@ -55,6 +56,8 @@ namespace lab4quiz.ViewModel
             NewAnswers = new ObservableCollection<Answer> { new(), new(), new(), new() };
             OnPropertyChanged(nameof(NewAnswers));
             OnPropertyChanged(nameof(NewQuestionText));
+
+            isEditing = false;
         }
 
         private void SaveQuiz()
@@ -92,6 +95,12 @@ namespace lab4quiz.ViewModel
 
         private void EditQuestion()
         {
+            if (isEditing)
+            {
+                MessageBox.Show("Najpierw zakończ edycję aktualnego pytania.", "Uwaga", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             if (SelectedQuestion != null)
             {
                 NewQuestionText = SelectedQuestion.Text;
@@ -109,7 +118,32 @@ namespace lab4quiz.ViewModel
                 OnPropertyChanged(nameof(NewQuestionText));
                 OnPropertyChanged(nameof(NewAnswers));
                 OnPropertyChanged(nameof(SelectedQuestion));
+
+                isEditing = true;
             }
+        }
+
+        private bool ValidateInputs()
+        {
+            if (string.IsNullOrWhiteSpace(NewQuestionText))
+            {
+                MessageBox.Show("Uzupełnij treść pytania.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (NewAnswers.Count != 4 || NewAnswers.Any(a => string.IsNullOrWhiteSpace(a.Text)))
+            {
+                MessageBox.Show("Uzupełnij wszystkie 4 odpowiedzi.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (!NewAnswers.Any(a => a.IsCorrect))
+            {
+                MessageBox.Show("Zaznacz przynajmniej jedną poprawną odpowiedź.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
         }
     }
 }
