@@ -68,8 +68,16 @@ namespace lab4quiz.ViewModel
 
         private void SaveQuiz()
         {
-            var quiz = new Quiz { Title = QuizTitle, Questions = Questions };
-            AESCipher.EncryptToFile(quiz, $"{QuizTitle}.quiz");
+            if (string.IsNullOrWhiteSpace(QuizTitle))
+            {
+                MessageBox.Show("Uzupełnij tytuł quizu.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else
+            {
+                var quiz = new Quiz { Title = QuizTitle, Questions = Questions };
+                AESCipher.EncryptToFile(quiz, $"{QuizTitle}.quiz");
+            }
         }
 
         private void LoadQuiz()
