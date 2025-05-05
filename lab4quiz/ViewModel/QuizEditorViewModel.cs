@@ -84,7 +84,10 @@ namespace lab4quiz.ViewModel
                 var currentDirectory = @"..\SavedQuizes\" + fileName;
                 var fullPath = Path.Combine(folderPath, fileName);
                 AESCipher.EncryptToFile(quiz, fullPath);
-                
+                Questions = [];
+                QuizTitle = "";
+                OnPropertyChanged(nameof(Questions));
+                OnPropertyChanged(nameof(QuizTitle));
                 MessageBox.Show($"Quiz zapisany jako {fileName}", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
