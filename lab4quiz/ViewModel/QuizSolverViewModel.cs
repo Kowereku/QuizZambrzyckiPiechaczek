@@ -10,7 +10,6 @@ using System.Windows.Input;
 using System.Windows;
 using lab4quiz.ViewModel.Base;
 using Microsoft.Win32;
-using System.IO;
 
 namespace lab4quiz.ViewModel
 {
@@ -92,31 +91,11 @@ namespace lab4quiz.ViewModel
             OnPropertyChanged(nameof(IsLastQuestion));
         }
 
-        private void LoadQuiz()
+        private void EndQuiz()
         {
-            var dialog = new OpenFileDialog
-            {
-                Filter = "Quiz files (*.quiz)|*.quiz"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                var quiz = AESCipher.DecryptFromFile<Quiz>(dialog.FileName);
-                Questions = new ObservableCollection<Question>(
-                    quiz.Questions.Select(q => new Question
-                    {
-                        Text = q.Text,
-                        Answers = new ObservableCollection<Answer>(
-                            q.Answers.Select(a => new Answer
-                            {
-                                Text = a.Text,
-                                IsCorrect = a.IsCorrect,
-                                IsSelected = false
-                            })
-                        )
-                    })
-                );
-
+            _timer?.Dispose();
+            int score = AllQuestions.Count(q => q.Answers.All(a => a.IsSelected == a.IsCorrect));
+            string result = $"Wynik: {score} / {AllQuestions.Count}\n\nPoprawne odpowiedzi:\n\n";
 
             foreach (var q in AllQuestions)
             {
