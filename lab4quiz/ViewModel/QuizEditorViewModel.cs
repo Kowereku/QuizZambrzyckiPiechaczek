@@ -4,6 +4,8 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -76,14 +78,24 @@ namespace lab4quiz.ViewModel
             else
             {
                 var quiz = new Quiz { Title = QuizTitle, Questions = Questions };
-                AESCipher.EncryptToFile(quiz, $"{QuizTitle}.quiz");
+                var folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SavedQuizes");
+                Directory.CreateDirectory(folderPath);
+                var fileName = $"{QuizTitle}.quiz";
+                var currentDirectory = @"..\SavedQuizes\" + fileName;
+                var fullPath = Path.Combine(folderPath, fileName);
+                AESCipher.EncryptToFile(quiz, fullPath);
+                
+                MessageBox.Show($"Quiz zapisany jako {fileName}", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
         private void LoadQuiz()
         {
+            string basePath = AppContext.BaseDirectory;
+            string projectPath = Path.GetFullPath(Path.Combine(basePath, "SavedQuizes"));
             var dialog = new OpenFileDialog
             {
+                InitialDirectory = projectPath,
                 Filter = "Quiz files (*.quiz)|*.quiz|All files (*.*)|*.*"
             };
 
