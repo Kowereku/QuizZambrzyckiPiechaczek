@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows;
 using lab4quiz.ViewModel.Base;
 using Microsoft.Win32;
+using System.IO;
 
 namespace lab4quiz.ViewModel
 {
@@ -62,9 +63,12 @@ namespace lab4quiz.ViewModel
 
         private void LoadQuiz()
         {
+            string basePath = AppContext.BaseDirectory;
+            string projectPath = Path.GetFullPath(Path.Combine(basePath, "SavedQuizes"));
             var dialog = new OpenFileDialog
             {
-                Filter = "Quiz files (*.quiz)|*.quiz"
+                InitialDirectory = projectPath,
+                Filter = "Quiz files (*.quiz)|*.quiz|All files (*.*)|*.*"
             };
 
             if (dialog.ShowDialog() == true)
