@@ -12,5 +12,6 @@
         <DataTemplate DataType="{x:Type vm:QuizSolverViewModel}">
             <views:QuizSolverView />
         </DataTemplate>
+        <local:BoolToButtonContentConverter x:Key="BoolToButtonContentConverter"/>
     </Application.Resources>
 </Application>

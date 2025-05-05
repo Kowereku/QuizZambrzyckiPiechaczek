@@ -15,33 +15,59 @@ namespace lab4quiz.ViewModel
 {
     public class QuizSolverViewModel : ViewModelBase
     {
-        public ObservableCollection<Question> Questions { get; set; }
-        public ICommand StartQuizCommand { get; }
-        public ICommand EndQuizCommand { get; }
-        public ICommand LoadQuizCommand { get; }
+        public List<Question> AllQuestions { get; set; } = new List<Question>();
+        private int _currentQuestionIndex = 0;
+        private Question _currentQuestion;
+        public Question CurrentQuestion
+        {
+            get => _currentQuestion;
+            set
+            {
+                _currentQuestion = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string TimerDisplay { get; set; } = "00:00";
         private Timer _timer;
         private int _secondsElapsed = 0;
 
+        public ICommand NextQuestionCommand { get; }
+        public ICommand LoadQuizCommand { get; }
+
+        public bool IsLastQuestion => _currentQuestionIndex == AllQuestions.Count - 1;
+
         public QuizSolverViewModel()
         {
-            StartQuizCommand = new RelayCommand(StartQuiz);
-            EndQuizCommand = new RelayCommand(EndQuiz);
+            NextQuestionCommand = new RelayCommand(NextQuestion);
             LoadQuizCommand = new RelayCommand(LoadQuiz);
         }
 
-        private void StartQuiz()
+        private void LoadQuiz()
         {
-            _secondsElapsed = 0;
-            _timer = new Timer(UpdateTimer, null, 0, 1000);
-            OnPropertyChanged(nameof(Questions));
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Quiz files (*.quiz)|*.quiz|All files (*.*)|*.*"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                var quiz = AESCipher.DecryptFromFile<Quiz>(dialog.FileName);
+                AllQuestions = quiz.Questions.ToList();
+
+                _currentQuestionIndex = 0;
+                CurrentQuestion = AllQuestions[_currentQuestionIndex];
+
+                StartTimer();
+                OnPropertyChanged(nameof(AllQuestions));
+                OnPropertyChanged(nameof(CurrentQuestion));
+                OnPropertyChanged(nameof(IsLastQuestion));
+            }
         }
 
         private void StartTimer()
         {
             _secondsElapsed = 0;
-            _timer?.Dispose();
             _timer = new Timer(UpdateTimer, null, 0, 1000);
         }
 
@@ -52,58 +78,38 @@ namespace lab4quiz.ViewModel
             OnPropertyChanged(nameof(TimerDisplay));
         }
 
+        private void NextQuestion()
+        {
+            if (IsLastQuestion)
+            {
+                EndQuiz();
+                return;
+            }
+
+            _currentQuestionIndex++;
+            CurrentQuestion = AllQuestions[_currentQuestionIndex];
+            OnPropertyChanged(nameof(IsLastQuestion));
+        }
+
         private void EndQuiz()
         {
             _timer?.Dispose();
+            int score = AllQuestions.Count(q => q.Answers.All(a => a.IsSelected == a.IsCorrect));
+            string result = $"Wynik: {score} / {AllQuestions.Count}\n\nPoprawne odpowiedzi:\n\n";
 
-            int correctAnswers = 0;
-            foreach (var question in Questions)
+            foreach (var q in AllQuestions)
             {
-                bool allCorrect = question.Answers.All(a => a.IsCorrect == a.IsSelected);
-                if (allCorrect) correctAnswers++;
-            }
-
-            var msg = $"Twój wynik: {correctAnswers} / {Questions.Count}\nCzas: {TimerDisplay}";
-            MessageBox.Show(msg, "Wynik", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        private void LoadQuiz()
-        {
-            var dialog = new OpenFileDialog
-            {
-                Filter = "Quiz files (*.quiz)|*.quiz"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                var quiz = AESCipher.DecryptFromFile<Quiz>(dialog.FileName);
-                Questions = new ObservableCollection<Question>(
-                    quiz.Questions.Select(q => new Question
-                    {
-                        Text = q.Text,
-                        Answers = new ObservableCollection<Answer>(
-                            q.Answers.Select(a => new Answer
-                            {
-                                Text = a.Text,
-                                IsCorrect = a.IsCorrect,
-                                IsSelected = false
-                            })
-                        )
-                    })
-                );
-
-
-                foreach (var q in Questions)
+                result += $"{q.Text}\n";
+                foreach (var a in q.Answers)
                 {
-                    foreach (var a in q.Answers)
-                        a.IsSelected = false;
+                    if (a.IsCorrect)
+                        result += $"✓ {a.Text}\n";
                 }
-
-                OnPropertyChanged(nameof(Questions));
-
-                StartTimer();
+                result += "\n";
             }
-        }
 
+            MessageBox.Show(result, "Wynik", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
+
 }
