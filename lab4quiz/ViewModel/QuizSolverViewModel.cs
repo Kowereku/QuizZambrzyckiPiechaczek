@@ -53,10 +53,11 @@ namespace lab4quiz.ViewModel
             if (dialog.ShowDialog() == true)
             {
                 var quiz = AESCipher.DecryptFromFile<Quiz>(dialog.FileName);
-                AllQuestions = quiz.Questions.ToList();
+                AllQuestions = quiz.Questions.OrderBy(_ => Guid.NewGuid()).ToList();
 
                 _currentQuestionIndex = 0;
                 CurrentQuestion = AllQuestions[_currentQuestionIndex];
+                CurrentQuestion.Answers = new ObservableCollection<Answer>(CurrentQuestion.Answers.OrderBy(_ => Guid.NewGuid()));
 
                 StartTimer();
                 OnPropertyChanged(nameof(AllQuestions));
