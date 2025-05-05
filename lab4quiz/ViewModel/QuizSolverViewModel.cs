@@ -18,6 +18,17 @@ namespace lab4quiz.ViewModel
         public List<Question> AllQuestions { get; set; } = new List<Question>();
         private int _currentQuestionIndex = 0;
         private Question _currentQuestion;
+        private bool _isQuizRunning = false;
+        public bool IsQuizRunning
+        {
+            get => _isQuizRunning;
+            set
+            {
+                _isQuizRunning = value;
+                OnPropertyChanged();
+                ((RelayCommand)LoadQuizCommand).RaiseCanExecuteChanged();
+            }
+        }
         public Question CurrentQuestion
         {
             get => _currentQuestion;
@@ -40,11 +51,12 @@ namespace lab4quiz.ViewModel
         public QuizSolverViewModel()
         {
             NextQuestionCommand = new RelayCommand(NextQuestion);
-            LoadQuizCommand = new RelayCommand(LoadQuiz);
+            LoadQuizCommand = new RelayCommand(LoadQuiz, () => !IsQuizRunning);
         }
 
         private void LoadQuiz()
         {
+            IsQuizRunning = true;
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
                 Filter = "Quiz files (*.quiz)|*.quiz|All files (*.*)|*.*"
@@ -94,9 +106,15 @@ namespace lab4quiz.ViewModel
 
         private void EndQuiz()
         {
+            IsQuizRunning = false;
             _timer?.Dispose();
             int score = AllQuestions.Count(q => q.Answers.All(a => a.IsSelected == a.IsCorrect));
             string result = $"Wynik: {score} / {AllQuestions.Count}\n\nPoprawne odpowiedzi:\n\n";
+
+            CurrentQuestion = null;
+            TimerDisplay = "00:00";
+            OnPropertyChanged(nameof(CurrentQuestion));
+            OnPropertyChanged(nameof(TimerDisplay));
 
             foreach (var q in AllQuestions)
             {
