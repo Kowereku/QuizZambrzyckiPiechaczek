@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows;
 using lab4quiz.ViewModel.Base;
+using Microsoft.Win32;
 
 namespace lab4quiz.ViewModel
 {
@@ -18,6 +19,7 @@ namespace lab4quiz.ViewModel
         public ICommand StartQuizCommand { get; }
         public ICommand EndQuizCommand { get; }
         public ICommand LoadQuizCommand { get; }
+
         public string TimerDisplay { get; set; } = "00:00";
         private Timer _timer;
         private int _secondsElapsed = 0;
@@ -36,20 +38,6 @@ namespace lab4quiz.ViewModel
             OnPropertyChanged(nameof(Questions));
         }
 
-        private void LoadQuiz()
-        {
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "Quiz files (*.quiz)|*.quiz|All files (*.*)|*.*"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                Questions = AESCipher.DecryptFromFile<Quiz>(dialog.FileName).Questions;
-                OnPropertyChanged(nameof(Questions));
-            }
-        }
-
         private void UpdateTimer(object state)
         {
             _secondsElapsed++;
@@ -60,8 +48,37 @@ namespace lab4quiz.ViewModel
         private void EndQuiz()
         {
             _timer?.Dispose();
-            int points = Questions.Count(q => q.Answers.All(a => a.IsCorrect == a.IsSelected));
-            MessageBox.Show($"Twój wynik: {points} / {Questions.Count}");
+
+            int correctAnswers = 0;
+            foreach (var question in Questions)
+            {
+                bool allCorrect = question.Answers.All(a => a.IsCorrect == a.IsSelected);
+                if (allCorrect) correctAnswers++;
+            }
+
+            var msg = $"Twój wynik: {correctAnswers} / {Questions.Count}\nCzas: {TimerDisplay}";
+            MessageBox.Show(msg, "Wynik", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void LoadQuiz()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Quiz files (*.quiz)|*.quiz"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                var quiz = AESCipher.DecryptFromFile<Quiz>(dialog.FileName);
+                Questions = quiz.Questions;
+
+                // Upewnij się, że każda odpowiedź ma IsSelected = false
+                foreach (var q in Questions)
+                    foreach (var a in q.Answers)
+                        a.IsSelected = false;
+
+                OnPropertyChanged(nameof(Questions));
+            }
         }
     }
 }
