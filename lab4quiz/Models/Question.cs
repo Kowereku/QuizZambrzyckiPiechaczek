@@ -12,6 +12,6 @@ namespace lab4quiz.Models
     {
         public string Text { get; set; }
         [JsonInclude]
-        public ObservableCollection<Answer> Answers = new ();
+        public ObservableCollection<Answer> Answers { get; set; } = new();
     }
 }

@@ -38,6 +38,13 @@ namespace lab4quiz.ViewModel
             OnPropertyChanged(nameof(Questions));
         }
 
+        private void StartTimer()
+        {
+            _secondsElapsed = 0;
+            _timer?.Dispose();
+            _timer = new Timer(UpdateTimer, null, 0, 1000);
+        }
+
         private void UpdateTimer(object state)
         {
             _secondsElapsed++;
@@ -70,15 +77,33 @@ namespace lab4quiz.ViewModel
             if (dialog.ShowDialog() == true)
             {
                 var quiz = AESCipher.DecryptFromFile<Quiz>(dialog.FileName);
-                Questions = quiz.Questions;
+                Questions = new ObservableCollection<Question>(
+                    quiz.Questions.Select(q => new Question
+                    {
+                        Text = q.Text,
+                        Answers = new ObservableCollection<Answer>(
+                            q.Answers.Select(a => new Answer
+                            {
+                                Text = a.Text,
+                                IsCorrect = a.IsCorrect,
+                                IsSelected = false
+                            })
+                        )
+                    })
+                );
 
-                // Upewnij się, że każda odpowiedź ma IsSelected = false
+
                 foreach (var q in Questions)
+                {
                     foreach (var a in q.Answers)
                         a.IsSelected = false;
+                }
 
                 OnPropertyChanged(nameof(Questions));
+
+                StartTimer();
             }
         }
+
     }
 }
