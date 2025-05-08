@@ -7,24 +7,30 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Margin="10">
-        <StackPanel>
-            <Button Content="Wczytaj quiz" Command="{Binding LoadQuizCommand}" Margin="0,0,0,10"/>
-            <TextBlock Text="Czas:" FontWeight="Bold"/>
-            <TextBlock Text="{Binding TimerDisplay}" FontSize="16" Margin="0,0,0,10"/>
+        <Border BorderThickness="1" BorderBrush="#cccccc" CornerRadius="10" Padding="15" Background="#ffffff">
+            <StackPanel>
+                <Button Content="📂 Wczytaj quiz" Command="{Binding LoadQuizCommand}" Margin="0,0,0,10" Padding="10,5"/>
 
-            <TextBlock Text="{Binding CurrentQuestion.Text}" FontWeight="Bold" FontSize="16" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
+                    <TextBlock Text="⏱ Czas: " FontWeight="Bold" FontSize="14"/>
+                    <TextBlock Text="{Binding TimerDisplay}" FontSize="16" FontWeight="Bold" Foreground="#2e7d32"/>
+                </StackPanel>
 
-            <ItemsControl ItemsSource="{Binding CurrentQuestion.Answers}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <CheckBox Content="{Binding Text}" IsChecked="{Binding IsSelected, Mode=TwoWay}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                <TextBlock Text="{Binding CurrentQuestion.Text}" FontWeight="Bold" FontSize="16"
+                           TextWrapping="Wrap" Margin="0,0,0,10" Foreground="#333"/>
 
-            <Button Content="{Binding IsLastQuestion, Converter={StaticResource BoolToButtonContentConverter}}"
-                    Command="{Binding NextQuestionCommand}"
-                    Margin="0,10,0,0" Height="40"/>
-        </StackPanel>
+                <ItemsControl ItemsSource="{Binding CurrentQuestion.Answers}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Content="{Binding Text}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0 4"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Button Content="{Binding IsLastQuestion, Converter={StaticResource BoolToButtonContentConverter}}"
+                        Command="{Binding NextQuestionCommand}"
+                        Margin="0,20,0,0" Height="40" FontWeight="Bold" Padding="10"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>

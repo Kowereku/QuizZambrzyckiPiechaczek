@@ -42,8 +42,8 @@ namespace lab4quiz.ViewModel
             AddQuestionCommand = new RelayCommand(AddQuestion);
             SaveQuizCommand = new RelayCommand(SaveQuiz);
             LoadQuizCommand = new RelayCommand(LoadQuiz);
-            RemoveQuestionCommand = new RelayCommand(RemoveQuestion, () => SelectedQuestion != null);
-            EditQuestionCommand = new RelayCommand(EditQuestion, () => SelectedQuestion != null);
+            RemoveQuestionCommand = new RelayCommand(RemoveQuestion);
+            EditQuestionCommand = new RelayCommand(EditQuestion);
         }
 
         private void AddQuestion()

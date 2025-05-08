@@ -3,21 +3,23 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:lab4quiz" xmlns:vm="clr-namespace:lab4quiz.ViewModel"
+        xmlns:local="clr-namespace:lab4quiz"
+        xmlns:vm="clr-namespace:lab4quiz.ViewModel"
         mc:Ignorable="d"
-        Title="Quiz" Height="500" Width="900">
+        Title="Quiz" Height="550" Width="900"
+        Background="#f7f7f7">
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
 
     <DockPanel>
         <!-- Menu -->
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="LightGray" Margin="10">
-            <Button Content="Generator quizu" Command="{Binding ShowEditorViewCommand}" Margin="0,0,10,0"/>
-            <Button Content="Rozwiąż quiz" Command="{Binding ShowSolverViewCommand}"/>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#e0e0e0" HorizontalAlignment="Left">
+            <Button Content="🛠 Generator quizu" Command="{Binding ShowEditorViewCommand}" Margin="0,0,10,0" Padding="10,5"/>
+            <Button Content="📝 Rozwiąż quiz" Command="{Binding ShowSolverViewCommand}" Padding="10,5"/>
         </StackPanel>
 
         <!-- Główny widok -->
-        <ContentControl Content="{Binding CurrentViewModel}"/>
+        <ContentControl Content="{Binding CurrentViewModel}" Margin="10"/>
     </DockPanel>
 </Window>
